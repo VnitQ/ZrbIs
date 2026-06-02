@@ -310,6 +310,7 @@ static int
 getxattr(struct thread *td, struct getxattr_args *args)
 {
 	char attrname[LINUX_XATTR_NAME_MAX + 1];
+	ssize_t size;
 	int attrnamespace, error;
 
 	error = xattr_to_extattr(args->name, &attrnamespace, attrname);
@@ -317,11 +318,26 @@ getxattr(struct thread *td, struct getxattr_args *args)
 		return (error);
 	if (args->path != NULL)
 		error = kern_extattr_get_path(td, args->path, attrnamespace,
+		    attrname, NULL, 0, args->follow, UIO_USERSPACE);
+	else
+		error = kern_extattr_get_fd(td, args->fd, attrnamespace,
+		    attrname, NULL, 0);
+	if (error != 0)
+		goto out;
+	if (args->value == NULL || args->size == 0)
+		return (0);
+	size = td->td_retval[0];
+	if (size > args->size)
+		return (ERANGE);
+	if (args->path != NULL)
+		error = kern_extattr_get_path(td, args->path, attrnamespace,
 		    attrname, args->value, args->size, args->follow, UIO_USERSPACE);
 	else
 		error = kern_extattr_get_fd(td, args->fd, attrnamespace,
 		    attrname, args->value, args->size);
-	return (error == EPERM ? ENOATTR : error);
+
+out:
+	return (error == EPERM || error == EOPNOTSUPP ? ENOATTR : error);
 }
 
 int
