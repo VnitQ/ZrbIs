@@ -73,7 +73,11 @@
  */
 #define __assert_sanitize(...)	((void)0)
 #else
-#define __assert_sanitize(...)	(void)sizeof(((bool(*)(bool))0)(__VA_ARGS__))
+template <typename T>
+char __assert_sanitize_arity(T &&);
+#define __assert_sanitize(...)                                 \
+	((void)sizeof(__assert_sanitize_arity(__VA_ARGS__)),   \
+	 (void)sizeof((__VA_ARGS__) ? 1 : 1))
 #endif /* __cplusplus < 202002L */
 #else
 #define __assert_sanitize(...)	(void)sizeof(((_Bool(*)(_Bool))0)(__VA_ARGS__))
