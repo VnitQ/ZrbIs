@@ -1288,14 +1288,24 @@ checklost(struct fat_descriptor *fat)
 				pwarn("Lost cluster chain at cluster %u\n"
 				    "%zd Cluster(s) lost\n",
 				    head, chainlength);
-				mod |= ret = reconnect(fat, head,
+				ret = reconnect(fat, head,
 				    chainlength);
+				/*
+				 * Defer folding a reconnect() failure into
+				 * mod: if the lost chain is cleared below it
+				 * has been resolved, and must not be reported
+				 * as an unrecovered error (FSERROR).
+				 */
+				if (ret != FSERROR)
+					mod |= ret;
 			}
 			if (mod & FSFATAL)
 				break;
 			if (ret == FSERROR && ask(0, "Clear")) {
 				clearchain(fat, head);
 				mod |= FSFATMOD;
+			} else if (ret == FSERROR) {
+				mod |= FSERROR;
 			}
 			chains--;
 		}
