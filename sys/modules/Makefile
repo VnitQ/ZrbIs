@@ -72,6 +72,7 @@ SUBDIR=	\
 	bridgestp \
 	bwi \
 	bwn \
+	${_adlngpio} \
 	${_bytgpio} \
 	${_chvgpio} \
 	cam \
@@ -400,6 +401,7 @@ SUBDIR=	\
 	sysvipc \
 	tarfs \
 	tcp \
+	${_tglhgpio} \
 	${_thunderbolt} \
 	${_ti} \
 	tmpfs \
@@ -795,6 +797,7 @@ _wdatwd=	wdatwd
 
 _aac=		aac
 _aacraid=	aacraid
+_adlngpio=	adlngpio
 .if ${MK_CRYPT} != "no" || defined(ALL_MODULES)
 _aesni=		aesni
 .endif
@@ -848,6 +851,7 @@ _pchtherm = pchtherm
 _s3=		s3
 _sdhci_acpi=	sdhci_acpi
 _superio=	superio
+_tglhgpio=	tglhgpio
 _vesa=		vesa
 _viawd=		viawd
 _vmd=		vmd
